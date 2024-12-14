@@ -1,0 +1,63 @@
+---
+title: "part2"
+author: "Ruitao Zhang"
+date: "2024-11-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### get differential expression gene list
+```{r}
+# convert results into a dataframe for easier read and write
+res_df <- as.data.frame(res)
+# get DEG based on adjusted p-value (adj.p<0.05) and log2 Fold Change (|logFC|>1)
+degenes <- res_df%>% filter(padj < .05 & abs(log2FoldChange)>1)
+# mark if a gene is up or down regulated.
+degenes$regulation <- ifelse(degenes$log2FoldChange > 1 & degenes$log2FoldChange > 1, 'up', 'down')
+print(subset(degenes['regulation'], regulation == 'up'),"up-regulated genes") # print up-regulated genes
+print(subset(degenes['regulation'], regulation == 'down'), "down-regulated genes") # print down-regulated genes
+# output and save the DEG list
+write.csv(degenes, "deg_05.csv") # output and write the DEGs
+write.csv(subset(degenes, regulation == 'up'), "deg_05_up.csv") # output and write up-regulated the DEGs
+write.csv(subset(degenes, regulation == 'down'), "deg_05_down.csv") # output and write down-regulated the DEGs
+```
+
+
+
+### read in David data
+```{r}
+# create lists for up/down reg
+up_files <- basename(list.files(pattern = "_up\\.txt$", full.names = TRUE))
+down_files <- basename(list.files(pattern = "_down\\.txt$", full.names = TRUE))
+
+# Read "up" files into a list with row names set as the first column
+up_data <- lapply(up_files, function(file) {
+  read.delim(file)
+})
+
+# Read "down" files into a separate list with row names set as the first column
+down_data <- lapply(down_files, function(file) {
+  read.delim(file)
+})
+
+# read
+names(up_data) <- sub("\\.txt$", "", up_files)
+names(down_data) <- sub("\\.txt$", "", down_files)
+
+# print out the top 5 of each list
+print_top5 <- function(data, title) {
+  cat(title, "\n")  # Print the title
+  print(head(data, 5))  # Print the top 5 rows
+}
+
+print_top5(up_data$BP_up, "Top 5 Rows of Up-regulated: Biological Process")
+print_top5(up_data$CC_up, "Top 5 Rows of Up-regulated: Cellular Component")
+print_top5(up_data$MF_up, "Top 5 Rows of Up-regulated: Molecular Function")
+
+print_top5(down_data$BP_down, "Top 5 Rows of Down-regulated: Biological Process")
+print_top5(down_data$CC_down, "Top 5 Rows of Down-regulated: Cellular Component")
+print_top5(down_data$MF_down, "Top 5 Rows of Down-regulated: Molecular Function")
+```

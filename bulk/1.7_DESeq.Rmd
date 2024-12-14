@@ -1,0 +1,319 @@
+---
+Title: 1.7_DESeq2
+Author: Group 7
+Date: 2024-11-25
+Project: Final Project for BMD_ENG_311
+output: pdf_document
+---
+
+<style>
+h1.title { text-align: center; }
+h4.author, h4.date { text-align: center; }
+</style>
+
+<!-- Description: -->
+<!--     This script performs differential expression analysis on RNA-Seq data -->
+<!--     for the PC9 cell line groups using the DESeq2 package. It focuses only -->
+<!--     on samples 1–9, which include untreated, 3-day treated, and 9-day treated -->
+<!--     groups, each in triplicate. -->
+<!--     The analysis includes: -->
+<!--         - Reading the expression matrix for samples 1–9. -->
+<!--         - Generating a colData metadata file specific to these samples. -->
+<!--         - Setting up a DESeqDataSet object with the count matrix and colData. -->
+<!--         - Performing differential expression analysis between conditions. -->
+<!--         - Visualizing results with MA plots and heatmaps. -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/Users/richardzhang/Desktop/Northwestern/Y1/BME_311/Final Project/data/")
+load("/Users/richardzhang/Desktop/Northwestern/Y1/BME_311/Final Project/Scripts/DESeq_multi_group.RData")
+```
+
+### Load Libraries
+```{r prepare, message=FALSE}
+library("DESeq2") # package for DESeq run
+library("combinat")
+library("BiocParallel") # for parallel evaluation 
+library("dplyr") # for data compilation
+library("ggplot2") # plotting
+library("vsn") #
+library("pheatmap") # for heatmap plotting
+library("RColorBrewer") # provides several color palette
+```
+
+
+### data preprocessing
+```{r}
+# read in counts dataset as a matrix
+cts <- as.matrix(read.csv("PC9_expression_matrix.csv", row.names = 1))
+# read in annotation dataset, and use the first column as rownames
+coldata <- read.csv("colData.csv", row.names=1)
+# subset 2 columns: condition and type
+coldata <- coldata[,c("file_id", "condition", "read_type")]
+# convert type of items in condition into 'factor' type.
+coldata$condition <- factor(coldata$condition)
+# convert type of items in type into 'factor' type.
+coldata$read_type <- factor(coldata$read_type)
+# remove the character 'fb' in rownames of coldata
+rownames(coldata) <- coldata$file_id
+# subset the cts by column names included in the row names of 'coldata', and reorder them in order of coldata.
+cts <- cts[, rownames(coldata)]
+cts <- round(cts)
+```
+
+<!-- # perform differential expression with DESeq2 -->
+<!-- ```{r} -->
+<!-- # To now construct the DESeqDataSet object from the matrix of counts and the sample information table, we use: -->
+<!-- dds <- DESeqDataSetFromMatrix(countData = cts, colData = coldata, design = ~ -->
+<!--                                   condition) -->
+<!-- ``` -->
+
+<!-- ### Data pre-filter -->
+<!-- ```{r} -->
+<!-- #  -->
+<!-- smallestGroupSize <- 3 # set smallest group size to 3 -->
+<!-- keep <- rowSums(counts(dds) >= 10) >= smallestGroupSize # get all genes which counts>=10 and sum of all raw expression>=3 -->
+<!-- dds <- dds[keep,] # subset for count >= 10 and group size >= 3 -->
+<!-- ``` -->
+
+<!-- ### Note on factor levels -->
+<!-- ```{r} -->
+<!-- # specifying the reference level: -->
+<!-- dds$condition <- relevel(dds$condition, ref = "Untreated") -->
+<!-- ``` -->
+
+### 1.Differential expression analysis
+```{r}
+# generate metadata for multi-comparison
+metadata <- data.frame(Untreated = coldata$file_id[1:3],
+                    Day3 = coldata$file_id[4:6],
+                    Day9 = coldata$file_id[7:9])
+# run mult-
+multi <- DESeq_multi_group(exprSet = cts, meta = metadata, coldata = coldata)
+dds_list <- multi$dds_list
+results_list <- multi$results_list
+resLFC_list <- multi$resLFC_list
+```
+
+<!-- ```{r} -->
+<!-- # get result -->
+<!-- dds <- DESeq(dds) # perform differential expression analysis -->
+<!-- res <- results(dds) # get the DE result -->
+<!-- res # show results -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- res <- results(dds, name="condition_Day3_vs_Untreated") # specify the coeffcient -->
+<!-- res <- results(dds, contrast=c("condition","Day3","Untreated")) # specify the contrast -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- # Log fold change shrinkage for visualization and ranking -->
+<!-- resultsNames(dds_list[[1]]) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- # get result fold change -->
+<!-- resLFC <- lfcShrink(dds_list$Day3_vs_Untreated, coef="condition_Day3_vs_Untreated", type="apeglm") # using 'apeglm' for LFC shrinkage -->
+<!-- resLFC # print -->
+<!-- ``` -->
+<!-- ```{r} -->
+<!-- # Speed-up and parallelization thoughts -->
+<!-- register(MulticoreParam(4)) -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- resOrdered <- res[order(res$pvalue),] # sort res by the smallest p-value -->
+<!-- summary(res) -->
+<!-- <!-- ``` --> -->
+
+<!-- ```{r} -->
+<!-- # get the number of how many p-values were less than 0.1. -->
+<!-- sum(res$padj < 0.1, na.rm=TRUE) -->
+
+<!-- res05 <- results(dds, alpha=0.05) # set alpha cutoff to 0.05 -->
+<!-- summary(res05) # show summary -->
+<!-- # get the number of how many adjusted p-values were less than 0.05. -->
+<!-- sum(res05$padj < 0.05, na.rm=TRUE) -->
+<!-- ``` -->
+
+### 2. Exploring and exporting results
+```{r}
+for(i in 1:length(results_list)){
+  plotMA(results_list[[i]], ylim=c(-2,2)) # MA-plot
+  plotMA(resLFC_list[[i]], ylim=c(-2,2)) # MA-plot for log FC data
+}
+```
+
+```{r}
+# interaction with MAplot
+# idx <- identify(res$baseMean, res$log2FoldChange) # get to identify MA-plot
+# rownames(res)[idx]
+```
+
+
+```{r}
+# because we are interested in treated vs untreated, we set 'coef=2'
+resNorm_list <- list()
+resApm_list <- list()
+resAsh_list <- list()
+for(i in 1:length(results_list)){
+  resNorm <- lfcShrink(dds_list[[i]], coef=2, type="normal") # using 'normal' for LFC shrinkage
+  resNorm_list[[names(results_list[i])]] <- resNorm
+  resApm <- lfcShrink(dds_list[[i]], coef=2, type="apeglm") # using 'normal' for LFC shrinkage
+  resApm_list[[names(results_list[i])]] <- resApm
+  resAsh <- lfcShrink(dds_list[[i]], coef=2, type="ashr") # using 'ashr' for LFC shrinkage, by which the bias could be less than normal
+  resAsh_list[[names(results_list[i])]] <- resAsh
+}
+```
+
+```{r}
+# plot 3 types respectively
+for(i in 1:length(results_list)){
+  par(mfrow=c(1,3), mar=c(4,4,2,1)) # set margin size and organization
+  xlim <- c(1,1e5); ylim <- c(-3,3) # set x/y-axis limits
+  # plot 3 MA plots
+  plotMA(resApm_list[[i]], xlim=xlim, ylim=ylim, main="apeglm")
+  plotMA(resNorm_list[[i]], xlim=xlim, ylim=ylim, main="normal")
+  plotMA(resAsh_list[[i]], xlim=xlim, ylim=ylim, main="ashr")
+}
+```
+
+### plot count
+```{r}
+for(i in 1:length(results_list)){
+  plotCounts(dds_list[[i]], gene=which.min(results_list[[i]]$padj), intgroup="condition") # plot count
+  
+  d <- plotCounts(dds_list[[i]], gene=which.min(results_list[[i]]$padj), intgroup="condition", 
+                  returnData=TRUE)
+  # use ggolot to demonstrate it
+  ggplot(d, aes(x=condition, y=count)) + 
+    geom_point(position=position_jitter(w=0.1,h=0)) + 
+    scale_y_log10(breaks=c(25,100,400))
+}
+```
+
+
+```{r}
+# More information on results columns
+mcols(results_list[[i]])$description
+```
+
+<!-- ```{r} -->
+<!-- # export result to csv file -->
+<!-- write.csv(as.data.frame(resOrdered),  -->
+<!--           file="condition_treated_results.csv") -->
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+<!-- # Exporting only the results which pass an adjusted p value < 0.1 -->
+<!-- resSig <- subset(resOrdered, padj < 0.1) -->
+<!-- resSig -->
+<!-- ``` -->
+
+<!-- ```{r} -->
+<!-- ## multi-factor design -->
+<!-- # print coldata -->
+<!-- colData(dds) -->
+<!-- # get a copy  -->
+<!-- ddsMF <- dds -->
+<!-- levels(ddsMF$type) # change the level by type -->
+<!-- levels(ddsMF$type) <- sub("-.*", "", levels(ddsMF$type)) # simplified the level names -->
+<!-- levels(ddsMF$type) -->
+<!-- # re-run DESeq with new levels -->
+<!-- design(ddsMF) <- formula(~ type + condition) -->
+<!-- ddsMF <- DESeq(ddsMF) -->
+<!-- # get new results based on types -->
+<!-- resMFType <- results(ddsMF, -->
+<!--                      contrast=c("type", "single", "paired")) -->
+<!-- head(resMFType) -->
+<!-- ``` -->
+
+
+### 3.Data transformations and visualization
+```{r}
+vsd_list <- list()
+rld_list <- list()
+ntd_list <- list()
+
+# Count data transformations
+for(i in 1:length(results_list)){
+  vsd <- vst(dds_list[[i]], blind=FALSE)  # performing variance stabilizing transformations
+  rld <- rlog(dds_list[[i]], blind=FALSE) # Apply regularized log transformation
+  ntd <- normTransform(dds_list[[i]])
+  head(assay(vsd), 3) # show top 3 rows
+  
+  vsd_list[[names(results_list[i])]] <- vsd
+  rld_list[[names(results_list[i])]] <- rld
+  ntd_list[[names(results_list[i])]] <- ntd
+}
+```
+
+
+```{r}
+library("vsn")
+# this gives log2(n + 1)
+for(i in 1:length(results_list)){
+  meanSdPlot(assay(ntd_list[[i]])) # plot normal transformation
+  meanSdPlot(assay(vsd_list[[i]])) # plot variance stabilizing transformations
+  meanSdPlot(assay(rld_list[[i]])) # plot r-log
+}
+```
+
+```{r}
+  ## Data quality assessment by sample clustering and visualization
+  # Heatmap of the count matrix
+for(i in 1:length(results_list)){
+  select <- order(rowMeans(counts(dds_list[[i]],normalized=TRUE)),
+                  decreasing=TRUE)[1:20]
+  df <- as.data.frame(colData(dds_list[[i]])[,c("condition","read_type")])
+  # heatmap for normal transformation
+  pheatmap(assay(ntd_list[[i]])[select,], cluster_rows=FALSE, show_rownames=FALSE,
+           cluster_cols=FALSE, annotation_col=df)
+  # heatmap for variance stabilizing transformations
+  pheatmap(assay(vsd_list[[i]])[select,], cluster_rows=FALSE, show_rownames=FALSE,
+           cluster_cols=FALSE, annotation_col=df)
+  # heatmap for r-log
+  pheatmap(assay(rld_list[[i]])[select,], cluster_rows=FALSE, show_rownames=FALSE,
+           cluster_cols=FALSE, annotation_col=df)
+}
+```
+  
+```{r}
+for(i in 1:length(results_list)){
+  ## plot heatmap of the sample-to-sample distances
+  sampleDists <- dist(t(assay(vsd_list[[i]]))) # get distances
+  # make it matrix
+  sampleDistMatrix <- as.matrix(sampleDists)
+  # data preparation
+  rownames(sampleDistMatrix) <- paste(vsd_list[[i]]$condition, vsd_list[[i]]$type, sep="-")
+  colnames(sampleDistMatrix) <- NULL
+  colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255) # set colors
+  # plot heatmap for distances
+  pheatmap(sampleDistMatrix,
+           clustering_distance_rows=sampleDists,
+           clustering_distance_cols=sampleDists,
+           col=colors)
+}
+```
+
+```{r}
+# plot PCA
+plotPCA(vsd_list[[1]], intgroup=c("condition", "read_type"))
+plotPCA(vsd_list[[2]], intgroup=c("condition", "read_type"))
+plotPCA(vsd_list[[3]], intgroup=c("condition", "read_type"))
+```
+
+```{r}
+# customize your PCA plot with ggplot2
+for(i in 1:length(results_list)){
+  pcaData <- plotPCA(vsd_list[[i]], intgroup=c("condition", "read_type"), returnData=TRUE)
+  percentVar <- round(100 * attr(pcaData, "percentVar"))
+  ggplot(pcaData, aes(PC1, PC2, color=condition, shape=type)) +
+    geom_point(size=3) +
+    xlab(paste0("PC1: ",percentVar[1],"% variance")) +
+    ylab(paste0("PC2: ",percentVar[2],"% variance")) + 
+    coord_fixed()
+}
+```
