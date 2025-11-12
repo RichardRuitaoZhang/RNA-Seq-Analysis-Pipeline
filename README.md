@@ -169,7 +169,7 @@ Rscript single\ cell/2.4_cluster.by.seurat.R
 
 # Author & Course Information
 
-**Author:** Ruitao Zhang
-**Course:** BME311 – Computational Genomics, Fall 2024
-**Instructor:** Dr. Zhe Ji
-Northwestern University, Evanston, IL
+**Author:** Ruitao Zhang  
+**Course:** BME311 – Computational Genomics, Fall 2024  
+**Instructor:** Dr. Zhe Ji  
+Northwestern University, Evanston, IL  
