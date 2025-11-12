@@ -9,11 +9,16 @@ It provides an end-to-end workflow from **raw sequencing data** to **differentia
 
 ```
 RNA-Seq-Analysis-Pipeline/
-├── RFunctions/         # Contains custom reusable R function definitions supporting both bulk and single-cell workflows
+├── RFunctions/    # Contains custom reusable R function definitions supporting both bulk and single-cell workflows
+|
 ├── RScripts/      # Core R functions used by pipeline scripts
+|
 ├── bulk/          # Complete bulk RNA-Seq pipeline (FASTQ → DE → enrichment)
+|
 ├── single cell/   # Single-cell RNA-Seq pipeline (10x Genomics + Seurat)
+|
 ├── paper/         # Example datasets from published studies
+|
 └── README.md
 ```
 
