@@ -61,7 +61,7 @@ This workflow is fully modular, allowing users to execute or debug each step ind
 | 1.8.4           | `1.8.4_heatmap.R`                                                                          | Expression heatmap visualization                  |
 | 1.8.5           | `1.8.5_tri_conditions.R`                                                                   | Multi-condition comparison analysis               |
 
-> ⚙️ **Note:** Variants like `1.5.1_construct.expression.matrix_PC9.sh` and `..._SKMEL28.sh` handle cell line–specific expression construction.
+> **Note:** Variants like `1.5.1_construct.expression.matrix_PC9.sh` and `..._SKMEL28.sh` handle cell line–specific expression construction.
 
 ---
 
@@ -112,7 +112,7 @@ The dataset `paper/cancers-2874917-supplementary.pdf` demonstrates the **single-
 
 ---
 
-## 🔢 RScripts and RData
+## RScripts and RData
 
 ### `RScripts/`
 
