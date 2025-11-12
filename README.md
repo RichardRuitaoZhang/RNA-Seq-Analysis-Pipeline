@@ -5,7 +5,7 @@ It provides an end-to-end workflow from **raw sequencing data** to **differentia
 
 ---
 
-### 🗁 Repository Structure
+### Repository Structure
 
 ```
 RNA-Seq-Analysis-Pipeline/
@@ -19,7 +19,7 @@ RNA-Seq-Analysis-Pipeline/
 
 ---
 
-### 🧠 Project Overview
+### Project Overview
 
 This pipeline automates **RNA-Seq data analysis** for both bulk and single-cell experiments.
 It separates computational steps into modular scripts and reusable R functions, allowing flexible execution on local or HPC environments.
@@ -33,7 +33,7 @@ It separates computational steps into modular scripts and reusable R functions, 
 
 ---
 
-## 🧩 Bulk RNA-Seq Analysis
+## Bulk RNA-Seq Analysis
 
 ### 🔹 Overview
 
@@ -78,7 +78,7 @@ The `paper/cancers-16-01001-with-cover.pdf` dataset demonstrates the **bulk RNA-
 
 ---
 
-## 🧬 Single-Cell RNA-Seq Analysis
+## Single-Cell RNA-Seq Analysis
 
 ### 🔹 Overview
 
@@ -128,7 +128,7 @@ Contains serialized `.RData` objects for every functions wrote in `RScripts/`, e
 
 ---
 
-## 📝 Paper Directory
+## Paper Directory
 
 Contains published example datasets used for demonstration and validation.
 
@@ -158,7 +158,7 @@ Rscript single\ cell/2.4_cluster.by.seurat.R
 
 ---
 
-## 🧱 Design Philosophy
+## Design Philosophy
 
 * **Modularized:** Each step is independent and reusable.
 * **Reproducible:** All results stored as `.RData` objects.
@@ -167,7 +167,7 @@ Rscript single\ cell/2.4_cluster.by.seurat.R
 
 ---
 
-# 👩‍🔬 Author & Course Information
+# Author & Course Information
 
 **Author:** Ruitao Zhang
 **Course:** BME311 – Computational Genomics, Fall 2024
