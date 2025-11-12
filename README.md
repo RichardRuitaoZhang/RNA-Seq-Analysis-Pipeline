@@ -5,7 +5,7 @@ It provides an end-to-end workflow from **raw sequencing data** to **differentia
 
 ---
 
-## 🗁 Repository Structure
+### 🗁 Repository Structure
 
 ```
 RNA-Seq-Analysis-Pipeline/
@@ -19,7 +19,7 @@ RNA-Seq-Analysis-Pipeline/
 
 ---
 
-## 🧠 Project Overview
+### 🧠 Project Overview
 
 This pipeline automates **RNA-Seq data analysis** for both bulk and single-cell experiments.
 It separates computational steps into modular scripts and reusable R functions, allowing flexible execution on local or HPC environments.
@@ -33,9 +33,9 @@ It separates computational steps into modular scripts and reusable R functions, 
 
 ---
 
-# 🧩 Bulk RNA-Seq Analysis
+## 🧩 Bulk RNA-Seq Analysis
 
-## 🔹 Overview
+### 🔹 Overview
 
 The **Bulk RNA-Seq module** provides a complete end-to-end workflow for standard transcriptome profiling — from **raw FASTQ files** to **differential expression** and **functional enrichment analysis**.
 
@@ -43,7 +43,7 @@ This workflow is fully modular, allowing users to execute or debug each step ind
 
 ---
 
-## 🔹 Workflow Summary
+### 🔹 Workflow Summary
 
 | Step            | Script                                                                                     | Description                                       |
 | --------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------- |
@@ -65,29 +65,29 @@ This workflow is fully modular, allowing users to execute or debug each step ind
 
 ---
 
-## 🔹 Dependencies
+### 🔹 Dependencies
 
 **External tools:** `FastQC`, `Trim Galore`, `STAR`, `Samtools`, `RSEM`
 **R packages:** `DESeq2`, `clusterProfiler`, `org.Hs.eg.db`, `ggplot2`, `enrichplot`, `fgsea`, `dplyr`, `tidyr`
 
 ---
 
-## 🔹 Example Data
+### 🔹 Example Data
 
 The `paper/cancers-16-01001-with-cover.pdf` dataset demonstrates the **bulk RNA-Seq** workflow, serving as a test and educational dataset for this pipeline.
 
 ---
 
-# 🧬 Single-Cell RNA-Seq Analysis
+## 🧬 Single-Cell RNA-Seq Analysis
 
-## 🔹 Overview
+### 🔹 Overview
 
 The **Single-Cell RNA-Seq module** automates 10x Genomics data processing and downstream Seurat analysis.
 It provides a complete workflow from **FASTQ** to **cell clustering and dataset integration**.
 
 ---
 
-## 🔹 Workflow Summary
+### 🔹 Workflow Summary
 
 | Step          | Script                                                | Description                                                         |
 | ------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
@@ -99,20 +99,20 @@ It provides a complete workflow from **FASTQ** to **cell clustering and dataset 
 
 ---
 
-## 🔹 Dependencies
+### 🔹 Dependencies
 
 **External tools:** `CellRanger`
 **R packages:** `Seurat`, `ggplot2`, `dplyr`, `tidyr`
 
 ---
 
-## 🔹 Example Data
+### 🔹 Example Data
 
 The dataset `paper/cancers-2874917-supplementary.pdf` demonstrates the **single-cell RNA-Seq** pipeline.
 
 ---
 
-# 🔢 RScripts and RData
+## 🔢 RScripts and RData
 
 ### `RScripts/`
 
@@ -124,11 +124,11 @@ Contains all **core R functions** used by both bulk and single-cell pipelines. T
 
 ### `RData/`
 
-Contains serialized `.RData` objects for every analysis stage, enabling reproducibility and fast reload.
+Contains serialized `.RData` objects for every functions wrote in `RScripts/`, enabling reproducibility and fast reload.
 
 ---
 
-# 📝 Paper Directory
+## 📝 Paper Directory
 
 Contains published example datasets used for demonstration and validation.
 
@@ -139,7 +139,7 @@ Contains published example datasets used for demonstration and validation.
 
 ---
 
-# 🚀 Quick Start
+## 🚀 Quick Start
 
 ```bash
 # Clone repository
@@ -158,7 +158,7 @@ Rscript single\ cell/2.4_cluster.by.seurat.R
 
 ---
 
-# 🧱 Design Philosophy
+## 🧱 Design Philosophy
 
 * **Modularized:** Each step is independent and reusable.
 * **Reproducible:** All results stored as `.RData` objects.
