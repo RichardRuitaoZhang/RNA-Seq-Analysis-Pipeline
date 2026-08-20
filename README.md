@@ -81,7 +81,7 @@ This workflow is fully modular, allowing users to execute or debug each step ind
 
 The `paper/cancers-16-01001-with-cover.pdf` dataset demonstrates the **bulk RNA-Seq** workflow, serving as a test and educational dataset for this pipeline.
 
-citation: Celeste, Frank V., and Scott Powers. "Induction of multiple alternative mitogenic signaling pathways accompanies the emergence of drug-tolerant cancer cells." Cancers 16.5 (2024): 1001.
+Citation: Celeste, Frank V., and Scott Powers. "Induction of multiple alternative mitogenic signaling pathways accompanies the emergence of drug-tolerant cancer cells." Cancers 16.5 (2024): 1001.
 
 ---
 
@@ -117,6 +117,7 @@ It provides a complete workflow from **FASTQ** to **cell clustering and dataset 
 
 The dataset `paper/cancers-2874917-supplementary.pdf` demonstrates the **single-cell RNA-Seq** pipeline.
 
+Citation：
 ---
 
 ## RScripts and RData
